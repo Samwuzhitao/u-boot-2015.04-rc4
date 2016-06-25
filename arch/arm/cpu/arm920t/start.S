@@ -24,6 +24,8 @@
  *
  *************************************************************************
  */
+#define GPFCON	0x56000050
+#define GPFDAT	0x56000054
 
 	.globl	reset
 
@@ -79,11 +81,11 @@ copyex:
 	ldr	r0, =INTSUBMSK
 	str	r1, [r0]
 # endif
-
-	/* FCLK:HCLK:PCLK = 1:2:4 */
+	
+	/* FCLK:HCLK:PCLK = 1:2:8 */
 	/* default FCLK is 120 MHz ! */
 	ldr	r0, =CLKDIVN
-	mov	r1, #3
+	mov	r1, #0x05
 	str	r1, [r0]
 #endif	/* CONFIG_S3C24X0 */
 
@@ -93,8 +95,8 @@ copyex:
 	 */
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	bl	cpu_init_crit
+	
 #endif
-
 	bl	_main
 
 /*------------------------------------------------------------------------------*/
@@ -140,10 +142,44 @@ cpu_init_crit:
 	 * because memory timing is board-dependend, you will
 	 * find a lowlevel_init.S in your board directory.
 	 */
+
+	mov	ip, lr
+	bl	uboot_led_init
+	mov	lr, ip
+	
+	mov	ip, lr
+	bl	uboot_led_off
+	mov	lr, ip
+	
 	mov	ip, lr
 
 	bl	lowlevel_init
 
 	mov	lr, ip
+	
+	mov	ip, lr
+	bl	uboot_led_on
+	mov	lr, ip
+	
 	mov	pc, lr
+
+	
+uboot_led_init:
+	ldr	r0, =GPFCON
+	ldr	r1, =0x1500
+	str	r1, [r0]
+	mov	pc, lr
+	
+uboot_led_on:
+	ldr	r0, =GPFDAT
+	mov	r1, #0x0
+	str	r1, [r0]
+	mov	pc, lr
+
+uboot_led_off:
+	ldr	r0, =GPFDAT
+	mov	r1, #0xff
+	str	r1, [r0]
+	mov	pc, lr
+	
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */

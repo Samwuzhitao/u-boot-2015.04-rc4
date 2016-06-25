@@ -35,9 +35,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define U_M_PDIV	0x3
 #define U_M_SDIV	0x1
 #elif USB_CLOCK==1
-#define U_M_MDIV	0x48
-#define U_M_PDIV	0x3
-#define U_M_SDIV	0x2
+#define U_M_MDIV	0x5c
+#define U_M_PDIV	0x1
+#define U_M_SDIV	0x1
 #endif
 
 static inline void pll_delay(unsigned long loops)
@@ -56,6 +56,8 @@ int board_early_init_f(void)
 	struct s3c24x0_clock_power * const clk_power =
 					s3c24x0_get_base_clock_power();
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
+
+	writel(0x5,&clk_power->clkdivn);
 
 	/* to reduce PLL lock time, adjust the LOCKTIME register */
 	writel(0xFFFFFF, &clk_power->locktime);
@@ -136,4 +138,96 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 	info->chipwidth = FLASH_CFI_BY16;
 	info->interface = FLASH_CFI_X16;
 	return 1;
+}
+
+/*****************************************************************************
+ * Define section
+ * add all #define here
+ *****************************************************************************/
+/* LED memory map */
+#define	GPFCON		(*(volatile unsigned long *)0x56000050)
+#define	GPFDAT		(*(volatile unsigned long *)0x56000054)
+/* LED Mode Define */
+#define LED_INPUT_MODE                                    0
+#define LED_OUTPUT_MODE                                   1
+#define LED_EXINT_MODE                                    2
+/* LED PIN Define */
+#define LED1                                              4
+#define LED2                                              5
+#define LED3                                              6
+/* LED port define */
+#define LED_CON_REG                                  GPFCON
+#define LED_DATA_REG                                 GPFDAT
+
+/*****************************************************************************
+ * Function:
+ *      LED_Init
+ * Description:
+ *		This is used to initialize LED
+ * Parameters:
+ *		ulLED_PinNum: The corresponding LED pin
+ *      ulGPIO_Mode:  You need to set this mode with LED pin
+ * Return:
+ *		None
+ *****************************************************************************/
+void LED_Init( unsigned long ulLED_PinNum, unsigned long ulGPIO_Mode )
+{
+    LED_CON_REG |= (ulGPIO_Mode << (ulLED_PinNum*2));
+}
+/*****************************************************************************
+ * Function:
+ *      LED_On
+ * Description:
+ *		Turn on the LED
+ * Parameters:
+ *		ulLED_PinNum: The corresponding LED pin
+ * Return:
+ *		None
+ *****************************************************************************/
+void LED_On( unsigned long ulLED_PinNum )
+{
+	LED_DATA_REG &= ~( 1 << ulLED_PinNum );
+}
+/*****************************************************************************
+ * Function:
+ *      LED_Off
+ * Description:
+ *		Turn off the LED
+ * Parameters:
+ *		ulLED_PinNum: The corresponding LED pin
+ * Return:
+ *		None
+ *****************************************************************************/
+void LED_Off( unsigned long ulLED_PinNum )
+{
+	LED_DATA_REG |= ( 1 << ulLED_PinNum );
+}
+
+/*****************************************************************************
+ * Function:
+ *      show_boot_process
+ * Description:
+ *		Use LED debug u-boot
+ * Parameters:
+ *		status: The status of u-boot's step
+ * Return:
+ *		None
+ *****************************************************************************/
+void show_boot_process(int status)
+{
+	LED_Init(LED1,LED_OUTPUT_MODE);
+	LED_Init(LED2,LED_OUTPUT_MODE);
+	LED_Init(LED3,LED_OUTPUT_MODE);
+
+	switch(status)
+	{
+		case 1: LED_On(LED1) ;LED_Off(LED2);LED_Off(LED3); break;
+		case 2: LED_Off(LED1);LED_On(LED2) ;LED_Off(LED3); break;
+		case 3: LED_On(LED1) ;LED_On(LED2) ;LED_Off(LED3); break;
+		case 4: LED_Off(LED1);LED_Off(LED2);LED_On(LED3) ; break;
+		case 5: LED_On(LED1) ;LED_Off(LED2);LED_On(LED3) ; break;
+		case 6: LED_Off(LED1);LED_On(LED2) ;LED_On(LED3) ; break;
+		case 7: LED_On(LED1) ;LED_On(LED2) ;LED_On(LED3) ; break;
+		default : break;
+	}
 }
