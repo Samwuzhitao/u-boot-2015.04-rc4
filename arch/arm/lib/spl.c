@@ -13,6 +13,8 @@
 #include <image.h>
 #include <linux/compiler.h>
 
+void show_boot_process(int status);
+
 #ifndef CONFIG_DM
 /* Pointer to as well as the global data structure for SPL */
 DECLARE_GLOBAL_DATA_PTR;
@@ -33,14 +35,17 @@ gd_t gdata __attribute__ ((section(".data")));
 void __weak board_init_f(ulong dummy)
 {
 	/* Clear the BSS. */
+	show_boot_process(1);
 	memset(__bss_start, 0, __bss_end - __bss_start);
-
+	show_boot_process(2);
 #ifndef CONFIG_DM
 	/* TODO: Remove settings of the global data pointer here */
 	gd = &gdata;
 #endif
 
+	show_boot_process(3);
 	board_init_r(NULL, 0);
+	show_boot_process(4);
 }
 
 /*

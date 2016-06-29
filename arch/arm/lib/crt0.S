@@ -54,9 +54,13 @@
 /*
  * entry point of crt0 sequence
  */
+#define GPFDAT	0x56000054
 
 ENTRY(_main)
 
+	ldr	r0, =GPFDAT
+	mov	r1, #0xFF
+	str	r1, [r0]
 /*
  * Set up initial C runtime environment and call board_init_f(0).
  */
@@ -83,8 +87,14 @@ clr_gd:
 	str	sp, [r9, #GD_MALLOC_BASE]
 #endif
 	/* mov r0, #0 not needed due to above code */
+	ldr	r0, =GPFDAT
+	mov	r1, #0x00
+	str	r1, [r0]
 	bl	board_init_f
 
+	ldr	r0, =GPFDAT
+	mov	r1, #0xFF
+	str	r1, [r0]
 #if ! defined(CONFIG_SPL_BUILD)
 
 /*
