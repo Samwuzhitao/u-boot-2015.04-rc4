@@ -21,7 +21,7 @@
 #define CONFIG_S3C2440		/* specifically a SAMSUNG S3C2410 SoC */
 #define CONFIG_SMDK2410		/* on a SAMSUNG SMDK2410 Board */
 
-#define CONFIG_SYS_TEXT_BASE	        0x33f80000
+#define CONFIG_SYS_TEXT_BASE	        0x30000000
 
 #define CONFIG_SPL_TEXT_BASE            0x0000
 #define CONFIG_SPL_MAX_SIZE             0x1000

@@ -13,8 +13,6 @@
 
 
 #include <config.h>
-#include <version.h>
-
 
 /* some parameters for the board */
 
@@ -107,36 +105,25 @@
 #define Trp			0x0	/* 2clk */
 #define Trc			0x3	/* 7clk */
 #define Tchr			0x2	/* 3clk */
-#define REFCNT			1113	/* period=15.6us, HCLK=60Mhz, (2048+1-15.6*60) */
+#define REFCNT			0x4f4	/* period=15.6us, HCLK=100Mhz, (2048+1-15.6*100) */
 /**************************************/
-#define GPFCON	0x56000050
-#define GPFDAT	0x56000054
 
 .globl lowlevel_init
 lowlevel_init:
 	/* memory control configuration */
 	/* make r0 relative the current location so that it */
-	
 	/* reads SMRDATA out of FLASH rather than memory ! */
-	
-	ldr	r0, =GPFDAT
-	mov	r1, #0x00
-	str	r1, [r0]
-	
 	ldr     r0, =SMRDATA
-	ldr	r1, =CONFIG_SYS_TEXT_BASE
+	ldr	r1, =CONFIG_SPL_TEXT_BASE
 	sub	r0, r0, r1
 	ldr	r1, =BWSCON	/* Bus Width Status Controller */
 	add     r2, r0, #13*4
-
-
-	
 0:
 	ldr     r3, [r0], #4
 	str     r3, [r1], #4
 	cmp     r2, r0
 	bne     0b
-	
+
 	/* everything is fine now */
 	mov	pc, lr
 
@@ -157,6 +144,7 @@ SMRDATA:
     .word 0x32
     .word 0x30
     .word 0x30
+
 
 
 
