@@ -21,6 +21,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+void show_boot_process(int status);
+
 #ifndef CONFIG_SYS_UBOOT_START
 #define CONFIG_SYS_UBOOT_START	CONFIG_SYS_TEXT_BASE
 #endif
@@ -140,6 +142,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 {
 	u32 boot_device;
 	debug(">>spl:board_init_r()\n");
+	show_boot_process(1);
 
 #if defined(CONFIG_SYS_SPL_MALLOC_START)
 	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
@@ -164,6 +167,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #ifdef CONFIG_SPL_BOARD_INIT
 	spl_board_init();
 #endif
+	show_boot_process(2);
 
 	boot_device = spl_boot_device();
 	debug("boot device - %d\n", boot_device);
@@ -182,6 +186,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #endif
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	case BOOT_DEVICE_NAND:
+		show_boot_process(3);
 		spl_nand_load_image();
 		break;
 #endif
@@ -258,8 +263,10 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	debug("SPL malloc() used %#lx bytes (%ld KB)\n", gd->malloc_ptr,
 	      gd->malloc_ptr / 1024);
 #endif
+	show_boot_process(4);
 
 	jump_to_image_no_args(&spl_image);
+	show_boot_process(5);
 }
 
 /*

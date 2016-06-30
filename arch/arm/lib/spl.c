@@ -35,17 +35,17 @@ gd_t gdata __attribute__ ((section(".data")));
 void __weak board_init_f(ulong dummy)
 {
 	/* Clear the BSS. */
-	show_boot_process(1);
+	//show_boot_process(1);
 	memset(__bss_start, 0, __bss_end - __bss_start);
-	show_boot_process(2);
+	//show_boot_process(2);
 #ifndef CONFIG_DM
 	/* TODO: Remove settings of the global data pointer here */
 	gd = &gdata;
 #endif
 
-	show_boot_process(3);
+	//show_boot_process(3);
 	board_init_r(NULL, 0);
-	show_boot_process(4);
+	//show_boot_process(4);
 }
 
 /*
