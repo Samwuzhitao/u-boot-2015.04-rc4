@@ -296,7 +296,8 @@ __weak int power_init_board(void)
 
 static int initr_announce(void)
 {
-	debug("Now running in RAM - U-Boot at: %08lx\n", gd->relocaddr);
+	//debug(
+	printf("Now running in RAM - U-Boot at: %08lx\n", gd->relocaddr);
 	return 0;
 }
 
@@ -316,6 +317,7 @@ static int initr_flash(void)
 	bd_t *bd = gd->bd;
 
 	puts("Flash: ");
+	printf("debug Flash init \r\n");
 
 	if (board_flash_wp_on())
 		printf("Uninitialized - Write Protect On\n");
